@@ -6,16 +6,14 @@ Misc stuff related to the CVTS project.
 
 ## Contents
 
-- **csv2json.py**: Python script for converting CSVs to JSON appropriate for feeding to the
-  [trace_attributes](https://valhalla.readthedocs.io/en/latest/api/map-matching/api-reference/#outputs-of-trace_attributes)
-  service of Valhalla.
-
 - **test.csv**: A test 'track' (can be prepared with *csv2json.py*).
 
 - **test.sh**: A test script that downloads and prepares the data for Vietnam and runs an example
   CSV file against the
   [trace_attributes](https://valhalla.readthedocs.io/en/latest/api/map-matching/api-reference/#outputs-of-trace_attributes)
   service in 'one shot' mode.
+
+- **[scripts](./scripts/README.md)**: Scripts and code.
 
 - **[windows](./windows/README.md)**: Stuff for setting up on windows.
 

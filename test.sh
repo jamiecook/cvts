@@ -24,7 +24,10 @@ valhalla_build_tiles -c valhalla.json vietnam-latest.osm.pbf
 find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
 
 # convert the test CSV data to JSON
-../csv2json.py ../test.csv test.json
+../scripts/csv2json.py ../test.csv test.json
 
 # and produce some output
 valhalla_service valhalla.json trace_attributes test.json > snap.json
+
+# and turn this into geojson
+../scripts/json2geojson.py snap.json snap.geojson
