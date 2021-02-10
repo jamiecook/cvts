@@ -27,6 +27,7 @@ find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
 ../scripts/csv2json.py ../test.csv test.json
 
 # and produce some output
+export LD_LIBRARY_PATH=/usr/local/lib
 valhalla_service valhalla.json trace_attributes test.json > snap.json
 
 # and turn this into geojson
