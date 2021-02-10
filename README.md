@@ -31,3 +31,23 @@ See [windows/README](./windows/README.md) for instructions for getting started o
 (Ubuntu)... just follow the instructions in
 [the README in the Valhalla repo](https://github.com/CVTS/valhalla), and don't forget to look at
 [this](https://github.com/CVTS/valhalla/blob/master/scripts/Ubuntu_Bionic_Install.sh).
+
+
+
+## Testing
+
+You can
+
+- download data for Vietnam,
+
+- built tiles, and
+
+- run the data in *./test.csv* through the *trace\_attributes* 'one shot services
+
+ with
+
+```bash
+./test.sh
+```
+
+This will all be done the folder *./test* (which will be created when you run *test.sh*).
