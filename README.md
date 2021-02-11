@@ -27,6 +27,12 @@ Misc stuff related to the CVTS project.
 
 ## Setup
 
+- Clone this repository
+
+    ```bash
+    git clone git@github.com:cvts/cvts.git
+    ```
+
 See [windows/README](./windows/README.md) for instructions for getting started on windows. On Linux
 (Ubuntu)... just follow the instructions in
 [the README in the Valhalla repo](https://github.com/CVTS/valhalla), and don't forget to look at
