@@ -57,3 +57,23 @@ You can
 ```
 
 This will all be done the folder *./test* (which will be created when you run *test.sh*).
+
+
+
+## Sharing a tmux Session
+
+- Person who is going to host
+
+    ```bash
+    tmux -S /tmp/shareds new -s shared
+    chgrp ACL_STACC_LW-CVTS_ADM /tmp/sharedsh
+    ```
+
+- Person who is guest
+
+    ```bash
+    tmux -S /tmp/shareds attach -t shared
+
+    # or, read only
+    tmux -S /tmp/shareds attach -t shared -r
+    ```
