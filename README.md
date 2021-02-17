@@ -64,9 +64,12 @@ This will all be done the folder *./test* (which will be created when you run *t
 
 - Person who is going to host
 
+  Ensure that the file */tmp/shareds* does not exist. If it does, change the */tmp/shared* it what
+  follows to some other file.
+
     ```bash
     tmux -S /tmp/shareds new -s shared
-    chgrp ACL_STACC_LW-CVTS_ADM /tmp/sharedsh
+    chgrp ACL_STACC_LW-CVTS_ADM /tmp/shareds
     ```
 
 - Person who is guest
