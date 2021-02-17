@@ -24,7 +24,7 @@ valhalla_build_tiles -c valhalla.json vietnam-latest.osm.pbf
 find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
 
 # convert the test CSV data to JSON
-../scripts/csv2json.py ../test.csv test.json
+../scripts/csv2json.py ../test.csv test.json 1
 
 # and produce some output
 export LD_LIBRARY_PATH=/usr/local/lib
