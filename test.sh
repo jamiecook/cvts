@@ -32,3 +32,6 @@ valhalla_service valhalla.json trace_attributes test.json > snap.json
 
 # and turn this into geojson
 ../scripts/json2geojson.py snap.json snap.geojson
+
+# and turn these into KMLs
+ogr2ogr -f KML snap.kml snap.geojson

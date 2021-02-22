@@ -31,9 +31,15 @@ def convert(infile, outfile):
     with open(infile, 'r') as jf:
         # the matched points
         data = json.load(jf)
+        shape = [{
+            'type': 'Feature',
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': [[p[0]/10., p[1]/10.] for p in decode(data['shape'])]}}]
+
         gj = {
             'type': 'FeatureCollection',
-            'features': [point_feature(mp) for mp in data['matched_points']]}
+            'features': [point_feature(mp) for mp in data['matched_points']] + shape}
 
         with open(outfile, 'w') as gf:
             json.dump(gj, gf, indent=4)
@@ -41,11 +47,7 @@ def convert(infile, outfile):
         # the path
         gj = {
             'type': 'FeatureCollection',
-            'features': [{
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'LineString',
-                    'coordinates': [[p[0]/10., p[1]/10.] for p in decode(data['shape'])]}}]}
+            'features': shape}
 
         with open(os.path.splitext(outfile)[0] + '-shape.geojson', 'w') as gf:
             json.dump(gj, gf, indent=4)

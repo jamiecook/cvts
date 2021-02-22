@@ -26,13 +26,14 @@ def convert(infile, outfile, reverse=True):
         locs = [{
                 'lat': float(row['Longitude']),
                 'lon': float(row['Latitude']),
+                'time': float(row['Time']),
+                'heading': float(row['Orientation']),
+                'heading_tolerance': 45,
                 'type': 'via'} for i, row in enumerate(reader)]
 
-        if reverse:
-            locs.reverse()
+        locs.sort(key=lambda i: i['time'], reverse=reverse)
 
         lls = {
-            # yes, lat and lon are reversed
             'shape': locs,
             'costing': 'auto',
             'shape_match': 'map_snap'}
