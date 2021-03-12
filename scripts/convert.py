@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Ensure the test data is anonymous."""
+
 import os
 import sys
 import csv

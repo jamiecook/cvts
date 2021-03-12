@@ -4,6 +4,8 @@
 
 ## Contents
 
+- **convert.py**: Python script for making sure the example data is appropriately anonymised."""
+
 - **csv2json.py**: Python script for converting CSVs to JSON appropriate for feeding to the
   [trace_attributes](https://valhalla.readthedocs.io/en/latest/api/map-matching/api-reference/#outputs-of-trace_attributes)
   service of Valhalla.

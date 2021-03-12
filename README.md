@@ -42,21 +42,11 @@ See [windows/README](./windows/README.md) for instructions for getting started o
 
 ## Testing
 
-You can
-
-- download data for Vietnam,
-
-- built tiles, and
-
-- run the data in *./test.csv* through the *trace\_attributes* 'one shot services
-
- with
+You can run the data in *./test.csv* through the *trace\_attributes* 'one shot service' with
 
 ```bash
 ./test.sh
 ```
-
-This will all be done the folder *./test* (which will be created when you run *test.sh*).
 
 
 

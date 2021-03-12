@@ -47,5 +47,5 @@ def convert(infile, outfile, reverse=True):
 if __name__ == '__main__':
     inputfile = sys.argv[1]
     outputfile = sys.argv[2] if len(sys.argv) > 2 else (os.path.splitext(inputfile)[0] + '.json')
-    reverse = bool(sys.argv[3]) if len(sys.argv) > 3 else True
+    reverse = bool(int(sys.argv[3])) if len(sys.argv) > 3 else False
     convert(inputfile, outputfile, reverse)

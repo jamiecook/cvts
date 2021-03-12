@@ -15,11 +15,20 @@
 import os
 import sys
 import json
+from urllib import quote
 from polyline import decode
 
-def point_feature(matched_point):
+def point_feature(matched_point, index, edges):
     lat = matched_point.pop('lat')
     lon = matched_point.pop('lon')
+
+    edge_index = matched_point.get('edge_index')
+    matched_point['edge_index'] = index
+    if edge_index is not None:
+        names = ', '.join(edges[edge_index].get("names", ["NA"]))
+        matched_point['osname'] = names
+        matched_point['way_id'] = edges[edge_index].get("way_id", "NA")
+
     return {
         'type': 'Feature',
         'properties': matched_point,
@@ -31,6 +40,8 @@ def convert(infile, outfile):
     with open(infile, 'r') as jf:
         # the matched points
         data = json.load(jf)
+        edges = data['edges']
+
         shape = [{
             'type': 'Feature',
             'geometry': {
@@ -39,7 +50,7 @@ def convert(infile, outfile):
 
         gj = {
             'type': 'FeatureCollection',
-            'features': [point_feature(mp) for mp in data['matched_points']] + shape}
+            'features': [point_feature(mp, i, edges) for i, mp in enumerate(data['matched_points'])] + shape}
 
         with open(outfile, 'w') as gf:
             json.dump(gj, gf, indent=4)
