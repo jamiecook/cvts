@@ -2,76 +2,125 @@
 
 import os
 import json
+import pickle
 import tempfile
+from collections import defaultdict
 from multiprocessing import Pool
-from glob import glob
 from subprocess import check_output, DEVNULL
-from cvts.settings import RAW_PATH, MM_PATH, SEQ_PATH, WORK_PATH, VALHALLA_CONFIG_FILE
-from cvts import csvfile2jsonfile
+from traceback import print_exc
+from cvts.settings import (
+    RAW_PATH,
+    WORK_PATH,
+    CONFIG_PATH,
+    MM_PATH,
+    SEQ_PATH,
+    VALHALLA_CONFIG_FILE)
+from cvts import csvfiles2jsonchunks
 
 
 
+POINT_KEYS = ('lat', 'lon', 'time', 'heading', 'speed', 'heading_tolerance')
 TMP_DIR = tempfile.gettempdir()
 KEYS = ('way_id', 'speed', 'speed_limit')
-NAS = ['NA']*len(KEYS)
+NAMES = ('way_id', 'valhalla_speed', 'speed_limit')
+NAS =  ('NA',) * len(KEYS)
 
 
 
-def process_file(fn):
-    mm_file = os.path.join(MM_PATH, fn)
+def _getpointattrs(point):
+    return tuple(point[k] for k in POINT_KEYS)
+
+def _getedgeattrs(edge):
+    return tuple(edge.get(k, 'NA') for k in KEYS)
+
+def process_file(fns):
+    fn = fns[0]
+    input_files = fns[1]
+
+    pnt_file = os.path.join(MM_PATH, fn)
     seq_file = os.path.join(SEQ_PATH, '{}-seq{}'.format(*os.path.splitext(fn)))
+    tmp_file = os.path.join(TMP_DIR, fn)
 
-    def _getattrs(edge):
-        return tuple(edge.get(k, 'NA') for k in KEYS)
+    if os.path.exists(pnt_file) and os.path.exists(seq_file):
+        return
 
-    if os.path.exists(mm_file) and os.path.exists(seq_file):
-        return ''
-
-    tmpf = os.path.join(TMP_DIR, fn)
-    try:
-        input_indexes = csvfile2jsonfile(os.path.join(RAW_PATH, fn), tmpf)
-
+    def run_trip(trip, trip_index):
         try:
-            snapped_str = check_output(['valhalla_service', VALHALLA_CONFIG_FILE, 'trace_attributes', tmpf], stderr=DEVNULL)
-        except:
-            print('valhalla failure')
-            return 'valhalla failure'
+            with open(tmp_file, 'w') as jf:
+                json.dump(trip, jf)
 
-        snapped = json.loads(snapped_str)
-        edges = snapped['edges']
-        edge_indexes = [e.get('edge_index') for e in snapped['matched_points']]
+            try:
+                snapped_str = check_output([
+                    'valhalla_service',
+                    VALHALLA_CONFIG_FILE,
+                    'trace_attributes',
+                    tmp_file], stderr=DEVNULL)
+            except:
+                raise Exception('valhalla failure')
+                print('valhalla failure')
 
-        try:
-            way_ids = [(_getattrs(edges[j]) if j is not None else NAS) for j in (edge_indexes[i] for i in input_indexes)]
+            snapped = json.loads(snapped_str)
+            matched_points = snapped['matched_points']
+            edges = snapped['edges']
+            edge_indexes = (p.get('edge_index') for p in matched_points)
+            match_types = (p['type'] for p in matched_points)
+            way_ids = [e['way_id'] for e in edges]
+
+            return trip_index, 'success', way_ids, [_getpointattrs(p) + \
+                ('success', trip_index) + \
+                (_getedgeattrs(edges[ei]) if ei is not None else NAS) + \
+                (mt,) for p, ei, mt in zip(trip['shape'], edge_indexes, match_types)]
+
         except Exception as e:
-            print(e)
-            return 'bad edge index'
+            e_str = str(e)
+            return trip_index, e_str, None, [_getpointattrs(p) + \
+                ('failure', trip_index) + \
+                NAS + \
+                (e_str,) for p in trip['shape']]
 
-        if len(way_ids) != len(input_indexes):
-            print('invalid lengths')
-            return 'invalid lengths'
+    try:
+        trips = csvfiles2jsonchunks(input_files, True)
+        results = (run_trip(trip, ti) for ti, trip in enumerate(trips))
+        all_way_ids = {}
 
-        with open(mm_file, 'w') as mm:
-            mm.write(','.join(KEYS) + '\n')
-            mm.writelines('{}\n'.format(','.join(str(t) for t in tup)) for tup in way_ids)
+        with open(pnt_file, 'w') as resultsfile:
+            resultsfile.write(','.join(POINT_KEYS + ('status', 'trip_index') + NAMES + ('message',)) + '\n')
+            for trip_index, status, way_ids, result in results:
+                resultsfile.writelines('{}\n'.format(','.join(str(t) for t in tup)) for tup in result)
+                if way_ids is not None:
+                    all_way_ids[trip_index] = way_ids
 
-        with open(seq_file , 'w') as mms:
-            mms.writelines('{}\n'.format(e['way_id']) for e in edges)
+        with open(seq_file , 'w') as seqfile:
+            json.dump(all_way_ids, seqfile)
 
     except Exception as e:
-        print(e)
-        return str(e)
+        print('{} failed: {}'.format(fn, e))
+        print_exc()
+
+    else:
+        print('{} passed'.format(fn))
 
     finally:
-        os.remove(tmpf)
-
-    return ''
+        os.remove(tmp_file)
 
 
 
-input_files = [os.path.basename(f) for f in glob(os.path.join(RAW_PATH, '*'))]
+# get all the input files
+pickle_file_name = os.path.join(CONFIG_PATH, 'files.pkl')
+if os.path.exists(pickle_file_name):
+    print('using existing file info')
+    with open(pickle_file_name, 'rb') as pf:
+        all_input_files = pickle.load(pf)
+else:
+    print('collecting new file info')
+    all_input_files = defaultdict(list)
+    for root, dirs, files in os.walk(RAW_PATH):
+        for f in files:
+            all_input_files[f].append(os.path.join(root, f))
+    with open(pickle_file_name, 'wb') as pf:
+        pickle.dump(all_input_files, pf)
 
-with Pool(5) as p: status = p.map(process_file, input_files)
 
-with open(os.path.join(WORK_PATH, 'status.txt'), 'w') as out:
-    out.writelines('{}: {}\n'.format(input_files[i], s) for i, s in enumerate(status) if s) 
+
+# process them
+with Pool(5) as p: p.map(process_file, all_input_files.items())

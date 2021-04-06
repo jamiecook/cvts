@@ -17,9 +17,8 @@
 
 import os
 import sys
-from cvts import csvfile2jsonfile as csv2json
+from cvts import csvfiles2jsonfile as csv2json
 
 inputfile = sys.argv[1]
 outputfile = sys.argv[2] if len(sys.argv) > 2 else (os.path.splitext(inputfile)[0] + '.json')
-reverse = bool(int(sys.argv[3])) if len(sys.argv) > 3 else False
-csv2json(inputfile, outputfile, reverse)
+csv2json(inputfile, outputfile)
