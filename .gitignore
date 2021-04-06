@@ -1,4 +1,7 @@
 *.swp
 *.*~
 *.pyc
+snap.json
+snap.geojson
 /test
+/venv

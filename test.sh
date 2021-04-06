@@ -4,8 +4,13 @@
 # Script for installing data for Vietnam and running a test 'snap'.
 #------------------------------------------------------------------------------
 
-mkdir -p test
-cd test
+export PYTHONPATH=`pwd`
+
+# get export valhalla env variables
+eval `python cvts/settings.py`
+
+# change to the config directory
+pushd "$CVTS_CONFIG_PATH"
 
 # get data for Vietnam
 wget https://download.geofabrik.de/asia/vietnam-latest.osm.pbf
@@ -17,7 +22,7 @@ valhalla_build_config \
     --mjolnir-tile-dir ${PWD}/valhalla_tiles \
     --mjolnir-tile-extract ${PWD}/valhalla_tiles.tar \
     --mjolnir-timezone ${PWD}/valhalla_tiles/timezones.sqlite \
-    --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite > valhalla.json
+    --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite > "$CVTS_VALHALLA_CONFIG_FILE"
 
 #build routing tiles
 valhalla_build_tiles -c valhalla.json vietnam-latest.osm.pbf
@@ -25,15 +30,15 @@ valhalla_build_tiles -c valhalla.json vietnam-latest.osm.pbf
 #tar it up for running the server
 find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
 
+# go back to initial directory
+popd
+
 # convert the test CSV data to JSON
-../scripts/csv2json.py ../test.csv test.json 0
+bin/csv2json test.csv test.json 0
 
 # and produce some output
 export LD_LIBRARY_PATH=/usr/local/lib
 valhalla_service valhalla.json trace_attributes test.json > snap.json
 
 # and turn this into geojson
-../scripts/json2geojson.py snap.json snap.geojson
-
-# and turn these into KMLs
-ogr2ogr -f KML snap.kml snap.geojson
+bin/json2geojson snap.json snap.geojson

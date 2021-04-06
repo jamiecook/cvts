@@ -6,47 +6,60 @@ Misc stuff related to the CVTS project.
 
 ## Contents
 
-- **test.csv**: A test 'track' (can be prepared with *csv2json.py*).
+- **[bin](./bin/README.md)**: Python scripts used in this project.
+
+- **convert.py**: Python script for making sure the example data is appropriately anonymised."""
+
+- **cvts**: Python code used in this project, structured as a Python package.
+
+- **setup.py**: Setup script for the python package.
+
+- **test.csv**: A test 'track' (can be prepared with *bin/csv2json*).
+
+- **test.json**: The example data contained in *test.csv* converted for input by
+  *bin/csv2json*. This is only here for ease of reference.
 
 - **test.sh**: A test script that downloads and prepares the data for Vietnam and runs an example
   CSV file against the
   [trace_attributes](https://valhalla.readthedocs.io/en/latest/api/map-matching/api-reference/#outputs-of-trace_attributes)
-  service in 'one shot' mode.
+  service in 'one shot' mode. **Must be run in this folder.*
 
-- **[scripts](./scripts/README.md)**: Scripts and code.
+- **[windows](./windows/README.md)**: Stuff for setting up on windows...
+  probably way out of date.
 
-- **[windows](./windows/README.md)**: Stuff for setting up on windows.
+
+
+## Getting started
+
+You will need to have [Valhalla](https://github.com/CVTS/valhalla) installed.
+See [windows/README](./windows/README.md) for instructions for getting started
+on windows. On Linux (Ubuntu)... just follow the instructions in [the README in
+the Valhalla repo](https://github.com/CVTS/valhalla).
+
+To setup this repo, you can install the python package with (using virtualenv):
+
+```bash
+# Clone this repository
+git clone git@github.com:cvts/cvts.git
+
+cd cvts
+
+# make a virtual env
+virtualenv -p python3 venv && . venv/bin/activate
+
+# and install
+pip install .
+
+# get the Vietnam data and check that it is all working
+./test.sh
+```
 
 
 
 ## Useful Stuff
 
-- Online documentation for Valhalla can be found [here](https://valhalla.readthedocs.io/en/latest/).
-
-
-
-## Setup
-
-- Clone this repository
-
-    ```bash
-    git clone git@github.com:cvts/cvts.git
-    ```
-
-See [windows/README](./windows/README.md) for instructions for getting started on windows. On Linux
-(Ubuntu)... just follow the instructions in
-[the README in the Valhalla repo](https://github.com/CVTS/valhalla), and don't forget to look at
-[this](https://github.com/CVTS/valhalla/blob/master/scripts/Ubuntu_Bionic_Install.sh).
-
-
-
-## Testing
-
-You can run the data in *./test.csv* through the *trace\_attributes* 'one shot service' with
-
-```bash
-./test.sh
-```
+- Online documentation for Valhalla can be found
+  [here](https://valhalla.readthedocs.io/en/latest/).
 
 
 
@@ -54,8 +67,8 @@ You can run the data in *./test.csv* through the *trace\_attributes* 'one shot s
 
 - Person who is going to host
 
-  Ensure that the file */tmp/shareds* does not exist. If it does, change the */tmp/shared* it what
-  follows to some other file.
+  Ensure that the file */tmp/shareds* does not exist. If it does, change the
+*/tmp/shared* it what follows to some other file.
 
     ```bash
     tmux -S /tmp/shareds new -s shared

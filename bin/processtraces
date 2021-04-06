@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+import os
+import json
+import tempfile
+from multiprocessing import Pool
+from glob import glob
+from subprocess import check_output, DEVNULL
+from cvts.settings import RAW_PATH, MM_PATH, SEQ_PATH, WORK_PATH, VALHALLA_CONFIG_FILE
+from cvts import csvfile2jsonfile
+
+
+
+TMP_DIR = tempfile.gettempdir()
+KEYS = ('way_id', 'speed', 'speed_limit')
+NAS = ['NA']*len(KEYS)
+
+
+
+def process_file(fn):
+    mm_file = os.path.join(MM_PATH, fn)
+    seq_file = os.path.join(SEQ_PATH, '{}-seq{}'.format(*os.path.splitext(fn)))
+
+    def _getattrs(edge):
+        return tuple(edge.get(k, 'NA') for k in KEYS)
+
+    if os.path.exists(mm_file) and os.path.exists(seq_file):
+        return ''
+
+    tmpf = os.path.join(TMP_DIR, fn)
+    try:
+        input_indexes = csvfile2jsonfile(os.path.join(RAW_PATH, fn), tmpf)
+
+        try:
+            snapped_str = check_output(['valhalla_service', VALHALLA_CONFIG_FILE, 'trace_attributes', tmpf], stderr=DEVNULL)
+        except:
+            print('valhalla failure')
+            return 'valhalla failure'
+
+        snapped = json.loads(snapped_str)
+        edges = snapped['edges']
+        edge_indexes = [e.get('edge_index') for e in snapped['matched_points']]
+
+        try:
+            way_ids = [(_getattrs(edges[j]) if j is not None else NAS) for j in (edge_indexes[i] for i in input_indexes)]
+        except Exception as e:
+            print(e)
+            return 'bad edge index'
+
+        if len(way_ids) != len(input_indexes):
+            print('invalid lengths')
+            return 'invalid lengths'
+
+        with open(mm_file, 'w') as mm:
+            mm.write(','.join(KEYS) + '\n')
+            mm.writelines('{}\n'.format(','.join(str(t) for t in tup)) for tup in way_ids)
+
+        with open(seq_file , 'w') as mms:
+            mms.writelines('{}\n'.format(e['way_id']) for e in edges)
+
+    except Exception as e:
+        print(e)
+        return str(e)
+
+    finally:
+        os.remove(tmpf)
+
+    return ''
+
+
+
+input_files = [os.path.basename(f) for f in glob(os.path.join(RAW_PATH, '*'))]
+
+with Pool(5) as p: status = p.map(process_file, input_files)
+
+with open(os.path.join(WORK_PATH, 'status.txt'), 'w') as out:
+    out.writelines('{}: {}\n'.format(input_files[i], s) for i, s in enumerate(status) if s) 
