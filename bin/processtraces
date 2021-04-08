@@ -38,7 +38,7 @@ def process_file(fns):
     input_files = fns[1]
 
     pnt_file = os.path.join(MM_PATH, fn)
-    seq_file = os.path.join(SEQ_PATH, '{}-seq{}'.format(*os.path.splitext(fn)))
+    seq_file = os.path.join(SEQ_PATH, '{}.json'.format(os.path.splitext(fn)[0]))
     tmp_file = os.path.join(TMP_DIR, fn)
 
     if os.path.exists(pnt_file) and os.path.exists(seq_file):
@@ -46,6 +46,11 @@ def process_file(fns):
 
     def run_trip(trip, trip_index):
         try:
+            way_ids = {
+                'trip_index': trip_index,
+                'start': {'time': int(trip['shape'][ 0]['time']), 'loc': {'lat': trip['shape'][ 0]['lat'], 'lon': trip['shape'][ 0]['lon']}},
+                'end':   {'time': int(trip['shape'][-1]['time']), 'loc': {'lat': trip['shape'][-1]['lat'], 'lon': trip['shape'][-1]['lon']}}}
+
             with open(tmp_file, 'w') as jf:
                 json.dump(trip, jf)
 
@@ -57,41 +62,36 @@ def process_file(fns):
                     tmp_file], stderr=DEVNULL)
             except:
                 raise Exception('valhalla failure')
-                print('valhalla failure')
 
             snapped = json.loads(snapped_str)
-            matched_points = snapped['matched_points']
             edges = snapped['edges']
-            edge_indexes = (p.get('edge_index') for p in matched_points)
-            match_types = (p['type'] for p in matched_points)
-            way_ids = [e['way_id'] for e in edges]
-
-            return trip_index, 'success', way_ids, [_getpointattrs(p) + \
+            match_props = ((p.get('edge_index'), p['type']) for p in snapped['matched_points'])
+            way_ids['status'] = 'success'
+            way_ids['way_ids'] = [e['way_id'] for e in edges]
+            return way_ids, [_getpointattrs(p) + \
                 ('success', trip_index) + \
                 (_getedgeattrs(edges[ei]) if ei is not None else NAS) + \
-                (mt,) for p, ei, mt in zip(trip['shape'], edge_indexes, match_types)]
+                (mt,) for p, (ei, mt) in zip(trip['shape'], match_props)]
 
         except Exception as e:
             e_str = str(e)
-            return trip_index, e_str, None, [_getpointattrs(p) + \
+            way_ids['status'] = 'failure'
+            way_ids['message'] = e_str
+            return way_ids, [_getpointattrs(p) + \
                 ('failure', trip_index) + \
                 NAS + \
                 (e_str,) for p in trip['shape']]
 
     try:
-        trips = csvfiles2jsonchunks(input_files, True)
-        results = (run_trip(trip, ti) for ti, trip in enumerate(trips))
-        all_way_ids = {}
-
-        with open(pnt_file, 'w') as resultsfile:
+        with open(pnt_file, 'w') as resultsfile, open(seq_file , 'w') as seqfile:
             resultsfile.write(','.join(POINT_KEYS + ('status', 'trip_index') + NAMES + ('message',)) + '\n')
-            for trip_index, status, way_ids, result in results:
+            def run_trips(way_ids, result):
                 resultsfile.writelines('{}\n'.format(','.join(str(t) for t in tup)) for tup in result)
-                if way_ids is not None:
-                    all_way_ids[trip_index] = way_ids
+                return way_ids
 
-        with open(seq_file , 'w') as seqfile:
-            json.dump(all_way_ids, seqfile)
+            trips = csvfiles2jsonchunks(input_files, True)
+            results = (run_trip(trip, ti) for ti, trip in enumerate(trips))
+            json.dump([run_trips(*r) for r in results], seqfile)
 
     except Exception as e:
         print('{} failed: {}'.format(fn, e))
