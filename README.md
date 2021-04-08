@@ -8,7 +8,8 @@ Misc stuff related to the CVTS project.
 
 - **[bin](./bin/README.md)**: Python scripts used in this project.
 
-- **convert.py**: Python script for making sure the example data is appropriately anonymised."""
+- **convert.py**: Python script for making sure the example data is
+  appropriately anonymised."""
 
 - **cvts**: Python code used in this project, structured as a Python package.
 
@@ -19,10 +20,10 @@ Misc stuff related to the CVTS project.
 - **test.json**: The example data contained in *test.csv* converted for input by
   *bin/csv2json*. This is only here for ease of reference.
 
-- **test.sh**: A test script that downloads and prepares the data for Vietnam and runs an example
-  CSV file against the
+- **test.sh**: A test script that downloads and prepares the data for Vietnam
+  and runs an example CSV file against the
   [trace_attributes](https://valhalla.readthedocs.io/en/latest/api/map-matching/api-reference/#outputs-of-trace_attributes)
-  service in 'one shot' mode. **Must be run in this folder.*
+  service in 'one shot' mode. **Must be run in this folder.**
 
 - **[windows](./windows/README.md)**: Stuff for setting up on windows...
   probably way out of date.
@@ -36,13 +37,20 @@ See [windows/README](./windows/README.md) for instructions for getting started
 on windows. On Linux (Ubuntu)... just follow the instructions in [the README in
 the Valhalla repo](https://github.com/CVTS/valhalla).
 
+**NOTES**
+
+- On our shared dev box, Valhalla is installed and maintained by Simon, so you
+  don't have to worry about this.
+
+- It appears that Valhalla has bugs that break things for us, so we need the
+  version in the CVTS repo (not the main repo at
+  https://github.com/valhalla/valhalla).
+
 To setup this repo, you can install the python package with (using virtualenv):
 
 ```bash
 # Clone this repository
-git clone git@github.com:cvts/cvts.git
-
-cd cvts
+git clone git@github.com:cvts/cvts.git && cd cvts
 
 # make a virtual env
 virtualenv -p python3 venv && . venv/bin/activate
@@ -54,16 +62,33 @@ pip install .
 ./test.sh
 ```
 
+You deactivate the virtual env with `deactivate`.
+
 
 
 ## Useful Stuff
 
-- Online documentation for Valhalla can be found
-  [here](https://valhalla.readthedocs.io/en/latest/).
+### Misc
+
+Online documentation for Valhalla can be found
+[here](https://valhalla.readthedocs.io/en/latest/).
 
 
+### Installing additional packages
 
-## Sharing a tmux Session
+If you want to install other packages into this environment, you can do
+something like:
+
+```bash
+# activate the virtual env
+. venv/bin/activate
+
+# and install
+pip install numpy pandas
+```
+
+
+### Sharing a tmux Session
 
 - Person who is going to host
 
