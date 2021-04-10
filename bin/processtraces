@@ -6,7 +6,6 @@ import pickle
 import tempfile
 from collections import defaultdict
 from multiprocessing import Pool
-from subprocess import check_output, DEVNULL
 from traceback import print_exc
 from cvts.settings import (
     RAW_PATH,
@@ -33,13 +32,35 @@ def _getpointattrs(point):
 def _getedgeattrs(edge):
     return tuple(edge.get(k, 'NA') for k in KEYS)
 
+def _run_valhalla(fn, trip, trip_index):
+    tmp_file_in  = os.path.join(TMP_DIR, str(trip_index) + '_in_'  + fn)
+    tmp_file_out = os.path.join(TMP_DIR, str(trip_index) + '_out_' + fn)
+
+    try:
+        with open(tmp_file_in, 'w') as jf:
+            json.dump(trip, jf)
+
+        os.system('valhalla_service {} trace_attributes {} 2>/dev/null > {}'.format(
+            VALHALLA_CONFIG_FILE,
+            tmp_file_in,
+            tmp_file_out))
+
+        with open(tmp_file_out, 'r') as rfile:
+            return json.load(rfile)
+
+    finally:
+        try: os.remove(tmp_file_in)
+        except: pass
+        try: os.remove(tmp_file_out)
+        except: pass
+
+
 def process_file(fns):
     fn = fns[0]
     input_files = fns[1]
 
     pnt_file = os.path.join(MM_PATH, fn)
     seq_file = os.path.join(SEQ_PATH, '{}.json'.format(os.path.splitext(fn)[0]))
-    tmp_file = os.path.join(TMP_DIR, fn)
 
     if os.path.exists(pnt_file) and os.path.exists(seq_file):
         return
@@ -51,19 +72,11 @@ def process_file(fns):
                 'start': {'time': int(trip['shape'][ 0]['time']), 'loc': {'lat': trip['shape'][ 0]['lat'], 'lon': trip['shape'][ 0]['lon']}},
                 'end':   {'time': int(trip['shape'][-1]['time']), 'loc': {'lat': trip['shape'][-1]['lat'], 'lon': trip['shape'][-1]['lon']}}}
 
-            with open(tmp_file, 'w') as jf:
-                json.dump(trip, jf)
-
             try:
-                snapped_str = check_output([
-                    'valhalla_service',
-                    VALHALLA_CONFIG_FILE,
-                    'trace_attributes',
-                    tmp_file], stderr=DEVNULL)
+                snapped = _run_valhalla(fn, trip, trip_index)
             except:
                 raise Exception('valhalla failure')
 
-            snapped = json.loads(snapped_str)
             edges = snapped['edges']
             match_props = ((p.get('edge_index'), p['type']) for p in snapped['matched_points'])
             way_ids['status'] = 'success'
@@ -99,9 +112,6 @@ def process_file(fns):
 
     else:
         print('{} passed'.format(fn))
-
-    finally:
-        os.remove(tmp_file)
 
 
 
