@@ -8,7 +8,7 @@ from .polyline import decode
 
 MAGIC_TIME     = 20 * 60 # seconds
 MAGIC_SPEED    = 6       # km/h
-MAGIC_DISTANCE = 15      # m
+MAGIC_DISTANCE = 50      # m
 EARTH_RADIUS   = 6371000 # meters
 
 
