@@ -6,10 +6,8 @@ import pickle
 import tempfile
 from collections import defaultdict
 from multiprocessing import Pool
-from traceback import print_exc
 from cvts.settings import (
     RAW_PATH,
-    WORK_PATH,
     CONFIG_PATH,
     MM_PATH,
     SEQ_PATH,
@@ -20,9 +18,9 @@ from cvts import csvfiles2jsonchunks
 
 POINT_KEYS = ('lat', 'lon', 'time', 'heading', 'speed', 'heading_tolerance')
 TMP_DIR = tempfile.gettempdir()
-KEYS = ('way_id', 'speed', 'speed_limit')
-NAMES = ('way_id', 'valhalla_speed', 'speed_limit')
-NAS =  ('NA',) * len(KEYS)
+EDGE_KEYS = ('way_id', 'speed', 'speed_limit')
+EDGE_ATTR_NAMES = ('way_id', 'valhalla_speed', 'speed_limit')
+NAS = ('NA',) * len(EDGE_KEYS)
 
 
 
@@ -30,7 +28,7 @@ def _getpointattrs(point):
     return tuple(point[k] for k in POINT_KEYS)
 
 def _getedgeattrs(edge):
-    return tuple(edge.get(k, 'NA') for k in KEYS)
+    return tuple(edge.get(k, 'NA') for k in EDGE_KEYS)
 
 def _run_valhalla(fn, trip, trip_index):
     tmp_file_in  = os.path.join(TMP_DIR, str(trip_index) + '_in_'  + fn)
@@ -97,7 +95,7 @@ def process_file(fns):
 
     try:
         with open(pnt_file, 'w') as resultsfile, open(seq_file , 'w') as seqfile:
-            resultsfile.write(','.join(POINT_KEYS + ('status', 'trip_index') + NAMES + ('message',)) + '\n')
+            resultsfile.write(','.join(POINT_KEYS + ('status', 'trip_index') + EDGE_ATTR_NAMES + ('message',)) + '\n')
             def run_trips(way_ids, result):
                 resultsfile.writelines('{}\n'.format(','.join(str(t) for t in tup)) for tup in result)
                 return way_ids
@@ -108,7 +106,6 @@ def process_file(fns):
 
     except Exception as e:
         print('{} failed: {}'.format(fn, e))
-        print_exc()
 
     else:
         print('{} passed'.format(fn))
@@ -133,4 +130,4 @@ else:
 
 
 # process them
-with Pool(5) as p: p.map(process_file, all_input_files.items())
+with Pool() as p: p.map(process_file, all_input_files.items())

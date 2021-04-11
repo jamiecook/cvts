@@ -13,6 +13,10 @@ Misc stuff related to the CVTS project.
 
 - **cvts**: Python code used in this project, structured as a Python package.
 
+- **doc**: Documentation.
+
+- **doc/copy.sh**: Copy documentation into working folders.
+
 - **setup.py**: Setup script for the python package.
 
 - **test.csv**: A test 'track' (can be prepared with *bin/csv2json*).
