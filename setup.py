@@ -8,4 +8,16 @@ setup(
     version='0.0.2',
     python_requires='>=3',
     packages=['cvts'],
-    scripts=['bin/json2geojson', 'bin/csv2json', 'bin/processtraces'])
+    scripts=[
+        'bin/csv2json',
+        'bin/json2geojson',
+        'bin/processtraces',
+        'bin/regiondensity'],
+    install_requires=[
+        'numpy',
+        'nptyping',
+        'scipy',
+        'shapely',
+        'tqdm',
+        'dataclasses',
+        'pyshp'])

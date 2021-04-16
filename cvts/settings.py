@@ -6,8 +6,11 @@ OUT_PATH = os.path.join(WORK_PATH, 'output')
 CONFIG_PATH = os.path.join(WORK_PATH, 'config')
 MM_PATH = os.path.join(OUT_PATH, 'mm')
 SEQ_PATH = os.path.join(OUT_PATH, 'seq')
+BOUNDARIES_PATH = os.path.join(WORK_PATH, 'boundaries')
 
 VALHALLA_CONFIG_FILE = os.path.join(WORK_PATH, 'config', 'valhalla.json')
+
+DEBUG = False
 
 for p in (OUT_PATH, CONFIG_PATH, MM_PATH, SEQ_PATH):
     if not os.path.exists(p):
@@ -22,4 +25,5 @@ if __name__ == '__main__':
         'CONFIG_PATH',
         'MM_PATH',
         'SEQ_PATH',
+        'BOUNDARIES_PATH',
         'VALHALLA_CONFIG_FILE')))

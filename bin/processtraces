@@ -113,7 +113,7 @@ def process_file(fns):
 
 
 # get all the input files
-pickle_file_name = os.path.join(CONFIG_PATH, 'files.pkl')
+pickle_file_name = os.path.join(CONFIG_PATH, 'raw_files.pkl')
 if os.path.exists(pickle_file_name):
     print('using existing file info')
     with open(pickle_file_name, 'rb') as pf:

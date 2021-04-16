@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import os
+import json
+import pickle
+from multiprocessing import Pool
+import numpy as np
+from tqdm import tqdm
+from cvts.settings import CONFIG_PATH, SEQ_PATH, WORK_PATH, BOUNDARIES_PATH
+from cvts import read_shapefile, points_to_polys, distance
+
+
+
+DEFAULT_BOUNDARIES = 'District'
+GEOM_ID_COLUMN     = 'DistrictID'
+MAGIC_DISTANCE     = 50 # m
+
+
+
+def _ends(end, start):
+    x1, y1 = start['lon'], start['lat']
+    x0, y0 = end['lon'], end['lat']
+    d = distance(x0, y0, x1, y1)
+    yield x0, y0
+    if d > MAGIC_DISTANCE:
+        yield x1, y1
+
+def _trips(f):
+    with open(f) as fin:
+        trips = json.load(fin)
+
+    tripiter = iter(trips)
+    t0 = next(tripiter)
+    p0 = t0['start']['loc']
+    yield p0['lon'], p0['lat']
+    for t1 in tripiter:
+        for e in _ends(t0['end']['loc'], t1['start']['loc']): yield e
+        t0 = t1
+    p0 = t0['start']['loc']
+    p1 = t0['end']['loc']
+    if distance(p0['lon'], p0['lat'], p1['lon'], p1['lat']) > MAGIC_DISTANCE:
+        yield p1['lon'], p1['lat']
+
+
+
+# input files
+pickle_file_name = os.path.join(CONFIG_PATH, 'seq_files.pkl')
+if os.path.exists(pickle_file_name):
+    print('using existing file info')
+    with open(pickle_file_name, 'rb') as pf:
+        all_input_files = pickle.load(pf)
+else:
+    print('collecting new file info')
+    all_input_files = []
+    for root, dirs, files in os.walk(SEQ_PATH):
+        for f in files:
+            all_input_files.append(os.path.join(root, f))
+    with open(pickle_file_name, 'wb') as pf:
+        pickle.dump(all_input_files, pf)
+
+
+
+# stop points
+points_file_name = os.path.join(WORK_PATH, 'stop_points.pkl')
+if os.path.exists(points_file_name):
+    print('using existing points')
+    with open(points_file_name, 'rb') as pf:
+        points = pickle.load(pf)
+else:
+    print('collecting points')
+    def doer(f): return np.array(_trips(f))
+    with Pool() as p:
+        workers = p.imap_unordered(doer, all_input_files)
+        pnts = tqdm(workers, total=len(all_input_files))
+        points = np.vstack([p for p in pnts if len(p) > 0])
+    with open(points_file_name, 'wb') as of:
+        pickle.dump(points, of)
+
+
+
+# polygons
+polys = read_shapefile(
+    os.path.join(BOUNDARIES_PATH, DEFAULT_BOUNDARIES + '.shp'),
+    GEOM_ID_COLUMN)
+
+
+ 
+# geometry identifier for each point
+poly_points_file_name = os.path.join(WORK_PATH, 'poly_points.pkl')
+if os.path.exists(poly_points_file_name):
+    print('using existing poly points')
+    with open(poly_points_file_name, 'rb') as pf:
+        poly_points = pickle.load(pf)
+else:
+    print('making poly points')
+    poly_points = points_to_polys(points, polys)
+    with open(poly_points_file_name, 'wb') as of:
+        pickle.dump(poly_points, of)
+
+
+
+# counts for each geometry
+poly_counts_file_name = os.path.join(WORK_PATH, 'poly_counts.pkl')
+if os.path.exists(poly_counts_file_name):
+    print('using existing poly points')
+    with open(poly_counts_file_name, 'rb') as pf:
+        values, counts = pickle.load(pf)
+else:
+    print('making poly points')
+    vcs = np.unique(poly_points, axis=0, return_counts=True)
+    with open(poly_counts_file_name, 'wb') as of:
+        pickle.dump(vcs, of)
+        values, counts = vcs
+        with open(os.path.join(WORK_PATH, 'poly_counts.csv'), 'w') as ofc:
+            ofc.write('{},count\n'.format(GEOM_ID_COLUMN))
+            for vc in zip(*vcs):
+                print(vc)
+                ofc.write('{},{}\n'.format(*vc))
