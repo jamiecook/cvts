@@ -30,30 +30,28 @@ def _trip_slices(locs):
     else:
         getter = lambda l: (l['time'], l['speed'], l['lat'], l['lon'])
         zi = enumerate(getter(l) for l in locs)
-        has_moved = done = False
+        has_moved = False
+        li, (last_moved_time, _, ly, lx) = next(zi)
+        last_point_time = last_moved_time
+        i = li
 
-        li, (lt, _, ly, lx) = next(zi)
         for i, (t, s, y, x) in zi:
-            done = False
+            has_moved = has_moved or distance(lx, ly, x, y) > MAGIC_DISTANCE or s > MAGIC_SPEED
 
-            if distance(lx, ly, x, y) > MAGIC_DISTANCE or s > MAGIC_SPEED:
-                has_moved = True
-                ly = y
-                lx = x
-                lt = t
-                continue
+            if has_moved:
+                if t - last_moved_time > MAGIC_TIME:
+                    if t - last_point_time <= MAGIC_TIME:
+                        yield slice(li, i-1)
+                        li = i-1
+                    else:
+                        yield slice(li, i)
+                        li = i
+                    has_moved = False
+                lx, ly, last_moved_time = x, y, t
 
-            if lt is None: lt = t
-            td = t - lt
-            if has_moved and td > MAGIC_TIME:
-                yield slice(li, i+1)
-                done = True
-                has_moved = False
-                lt = None
-                li = i
+            last_point_time = t
 
-        if not done:
-            yield slice(li, i+1)
+        yield slice(li, i+1)
 
 
 
@@ -75,7 +73,12 @@ def _prepjson(locs, split_time):
     locs.sort(key=lambda l: l['time'])
     if split_time:
         for split in _trip_slices(locs):
-            yield {'shape': locs[split], 'costing': 'auto', 'shape_match': 'map_snap'}
+            locs = locs[split]
+            if len(locs) == 0:
+                continue
+            locs[0]['type'] = 'break'
+            locs[-1]['type'] = 'break'
+            yield {'shape': locs, 'costing': 'auto', 'shape_match': 'map_snap'}
     else:
         locs[0]['type'] = 'break'
         locs[-1]['type'] = 'break'
