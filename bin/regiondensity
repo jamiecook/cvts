@@ -11,7 +11,7 @@ from cvts import read_shapefile, points_to_polys, distance
 from cvts.settings import (
     CONFIG_PATH,
     SEQ_PATH,
-    WORK_PATH,
+    OUT_PATH,
     TRIP_PATH,
     BOUNDARIES_PATH)
 
@@ -75,7 +75,7 @@ else:
 
 
 # stop points
-points_file_name = os.path.join(WORK_PATH, 'stop_points.pkl')
+points_file_name = os.path.join(OUT_PATH, 'stop_points.pkl')
 if os.path.exists(points_file_name):
     print('using existing points')
     with open(points_file_name, 'rb') as pf:
@@ -100,7 +100,7 @@ polys = read_shapefile(
 
  
 # geometry identifier for each point
-poly_points_file_name = os.path.join(WORK_PATH, 'poly_points.pkl')
+poly_points_file_name = os.path.join(OUT_PATH, 'poly_points.pkl')
 if os.path.exists(poly_points_file_name):
     print('using existing poly points')
     with open(poly_points_file_name, 'rb') as pf:
@@ -114,7 +114,7 @@ else:
 
 
 # counts for each geometry
-poly_counts_file_name = os.path.join(WORK_PATH, 'poly_counts.pkl')
+poly_counts_file_name = os.path.join(OUT_PATH, 'poly_counts.pkl')
 if os.path.exists(poly_counts_file_name):
     print('using existing poly points')
     with open(poly_counts_file_name, 'rb') as pf:
@@ -125,7 +125,7 @@ else:
     with open(poly_counts_file_name, 'wb') as of:
         pickle.dump(vcs, of)
         values, counts = vcs
-        with open(os.path.join(WORK_PATH, 'poly_counts.csv'), 'w') as ofc:
+        with open(os.path.join(OUT_PATH, 'poly_counts.csv'), 'w') as ofc:
             ofc.write('{},count\n'.format(GEOM_ID_COLUMN))
             for vc in zip(*vcs):
                 print(vc)
