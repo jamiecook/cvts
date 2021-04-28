@@ -16,11 +16,11 @@ EARTH_RADIUS   = 6371000 # m
 
 
 def distance(x0, y0, x1, y1):
-    # quick and adequate for small distances
+    """Quick and adequate for small distances."""
+
     yd = radians(y1 - y0)
     xd = radians(x1 - x0) * cos(radians(y0) + .5*yd)
     return EARTH_RADIUS * sqrt(yd*yd + xd*xd)
-
 
 
 def _trip_slices(locs):
@@ -36,7 +36,7 @@ def _trip_slices(locs):
         i = li
 
         for i, (t, s, y, x) in zi:
-            has_moved = has_moved or distance(lx, ly, x, y) > MAGIC_DISTANCE or s > MAGIC_SPEED
+            has_moved = has_moved or s > MAGIC_SPEED or distance(lx, ly, x, y) > MAGIC_DISTANCE
 
             if has_moved:
                 if t - last_moved_time > MAGIC_TIME:
@@ -56,6 +56,9 @@ def _trip_slices(locs):
 
 
 def _loadcsv(csvfile):
+    """Load a raw GeoJSON file and start preparing it for input into Valhalla
+    (preparation is finalissed in *_prepjson*)."""
+
     with open(csvfile, 'r') as cf:
         reader = csv.DictReader(cf)
         return [{
@@ -69,9 +72,12 @@ def _loadcsv(csvfile):
 
 
 
-def _prepjson(locs, split_time):
+def _prepjson(locs, split_trips):
+    """Finish preparing data for input into Valhalla and return the results as a
+    generator over trip(s)."""
+
     locs.sort(key=lambda l: l['time'])
-    if split_time:
+    if split_trips:
         for split in _trip_slices(locs):
             locs = locs[split]
             if len(locs) == 0:
@@ -86,20 +92,24 @@ def _prepjson(locs, split_time):
 
 
 
-def csvfiles2jsonchunks(csvfile, split_time):
+def rawfiles2jsonchunks(csvfile, split_trips):
+    """Create a generator over all the data for a single vehicle."""
+
     raw_locs = _loadcsv(csvfile) \
         if isinstance(csvfile, str) \
         else reduce(lambda a, b: a + _loadcsv(b), csvfile, [])
-    return _prepjson(raw_locs, split_time)
+    return _prepjson(raw_locs, split_trips)
 
-def csvfiles2jsonfile(csvfile, outfile):
-    chunks = csvfiles2jsonchunks(csvfile, False)
+def rawfiles2jsonfile(csvfile, outfile):
+    chunks = rawfiles2jsonchunks(csvfile, False)
     with open(outfile, 'w') as jf:
         json.dump(next(chunks), jf, indent=4)
 
 
 
 def json2geojson(data):
+    """Convert the output from Valhalla to a GeoJSON object."""
+
     edges = data['edges']
 
     def _point_feature(matched_point, index):

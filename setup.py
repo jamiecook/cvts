@@ -20,4 +20,5 @@ setup(
         'shapely',
         'tqdm',
         'dataclasses',
-        'pyshp'])
+        'pyshp',
+        'luigi'])
