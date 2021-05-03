@@ -9,12 +9,13 @@ SEQ_PATH        = os.path.join(OUT_PATH,  'seq')
 MM_PATH         = os.path.join(OUT_PATH,  'mm')
 STOP_PATH       = os.path.join(OUT_PATH,  'stop')
 SRC_DEST_PATH   = os.path.join(OUT_PATH,  'src_dest')
+SPEED_PATH      = os.path.join(OUT_PATH,  'speed')
 
 VALHALLA_CONFIG_FILE = os.path.join(CONFIG_PATH, 'valhalla.json')
 
 DEBUG = False
 
-for p in (CONFIG_PATH, OUT_PATH, SEQ_PATH, MM_PATH, STOP_PATH, SRC_DEST_PATH):
+for p in (CONFIG_PATH, OUT_PATH, SEQ_PATH, MM_PATH, STOP_PATH, SRC_DEST_PATH, SPEED_PATH):
     if not os.path.exists(p):
         os.makedirs(p)
 
@@ -30,4 +31,5 @@ if __name__ == '__main__':
         'MM_PATH',
         'STOP_PATH',
         'SRC_DEST_PATH',
+        'SPEED_PATH',
         'VALHALLA_CONFIG_FILE')))
