@@ -4,16 +4,23 @@ import os
 import json
 import pickle
 from multiprocessing import Pool
+from datetime import timezone, timedelta, datetime
 import numpy as np
 from tqdm import tqdm
-from cvts.settings import CONFIG_PATH, SEQ_PATH, WORK_PATH, BOUNDARIES_PATH
 from cvts import read_shapefile, points_to_polys, distance
+from cvts.settings import (
+    CONFIG_PATH,
+    SEQ_PATH,
+    WORK_PATH,
+    TRIP_PATH,
+    BOUNDARIES_PATH)
 
 
 
 DEFAULT_BOUNDARIES = 'District'
 GEOM_ID_COLUMN     = 'DistrictID'
 MAGIC_DISTANCE     = 50 # m
+TZ                 = timezone(timedelta(hours=7), 'ITC')
 
 
 
@@ -25,7 +32,7 @@ def _ends(end, start):
     if d > MAGIC_DISTANCE:
         yield x1, y1
 
-def _trips(f):
+def _do_trips(f):
     with open(f) as fin:
         trips = json.load(fin)
 
@@ -40,6 +47,13 @@ def _trips(f):
     p1 = t0['end']['loc']
     if distance(p0['lon'], p0['lat'], p1['lon'], p1['lat']) > MAGIC_DISTANCE:
         yield p1['lon'], p1['lat']
+
+def _trips(f):
+    trips = [t for t in _do_trips(f)]
+    trip_file_name = os.path.join(TRIP_PATH, os.path.basename(f))
+    with open(trip_file_name, 'w') as trip_file:
+        json.dump(trips, trip_file)
+    return trips
 
 
 

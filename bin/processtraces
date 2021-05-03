@@ -12,7 +12,7 @@ from cvts.settings import (
     MM_PATH,
     SEQ_PATH,
     VALHALLA_CONFIG_FILE)
-from cvts import csvfiles2jsonchunks
+from cvts import csvfiles2jsonchunks, json2geojson
 
 
 
@@ -77,15 +77,17 @@ def process_file(fns):
 
             edges = snapped['edges']
             match_props = ((p.get('edge_index'), p['type']) for p in snapped['matched_points'])
-            way_ids['status'] = 'success'
             way_ids['way_ids'] = [e['way_id'] for e in edges]
+            way_ids['geojson'] = json2geojson(snapped)
+            way_ids['status'] = 'success'
+
             return way_ids, [_getpointattrs(p) + \
                 ('success', trip_index) + \
                 (_getedgeattrs(edges[ei]) if ei is not None else NAS) + \
                 (mt,) for p, (ei, mt) in zip(trip['shape'], match_props)]
 
         except Exception as e:
-            e_str = str(e)
+            e_str = '{}: {}'.format(e.__class__.__name__, str(e))
             way_ids['status'] = 'failure'
             way_ids['message'] = e_str
             return way_ids, [_getpointattrs(p) + \

@@ -59,14 +59,22 @@ in the input files.**
 
     - "status": "success" if Valhalla succeeded for this trip or "failure" if
       it did not.
+
     - "trip\_index": The index of the trip.
+
     - "start":
+
         - "time": The timestamp of the point at which the trip started.
         - "loc":
             - "lat": The latitude of the point at which the trip started.
             - "lon": The longitude of the point at which the trip started.
+
     - ["way\_ids"]: The way ids of the trip as produced by Valhalla. Only
       present if *status* is "success"
+
+    - ["geojson"]: A GeoJSON representation of the trip (produced by
+      *cvts.json2geojson*). Only present if *status* is "success"
+
     - ["message"]: An error message. The result of `str(e)`, where `e` is the
       exception thrown in the case where *status* is "failure". Only present
       when *status* is "failure".
