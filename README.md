@@ -2,20 +2,22 @@
 
 Misc stuff related to the CVTS project.
 
+More complete documentation available [here](https://cvts.github.io/cvts/).
+
 
 
 ## Contents
 
-- **[bin](./bin/README.md)**: Python scripts used in this project.
+- **bin**: Python scripts used in this project.
 
 - **convert.py**: Python script for making sure the example data is
   appropriately anonymised."""
 
 - **cvts**: Python code used in this project, structured as a Python package.
 
-- **doc**: Documentation.
-
-- **doc/copy.sh**: Copy documentation into working folders.
+- **doc**: Sphinx documentation. Make this with `make sphinx-doc` (requires
+  that you have run `make initial-setup` some time previously) and then access
+  it at *doc/build/index.html*
 
 - **setup.py**: Setup script for the python package.
 
@@ -41,15 +43,6 @@ See [windows/README](./windows/README.md) for instructions for getting started
 on windows. On Linux (Ubuntu)... just follow the instructions in [the README in
 the Valhalla repo](https://github.com/CVTS/valhalla).
 
-**NOTES**
-
-- On our shared dev box, Valhalla is installed and maintained by Simon, so you
-  don't have to worry about this.
-
-- It appears that Valhalla has bugs that break things for us, so we need the
-  version in the CVTS repo (not the main repo at
-  https://github.com/valhalla/valhalla).
-
 To setup this repo, you can install the python package with (using virtualenv):
 
 ```bash
@@ -57,7 +50,7 @@ To setup this repo, you can install the python package with (using virtualenv):
 git clone git@github.com:cvts/cvts.git && cd cvts
 
 # make a virtual env
-virtualenv -p python3 venv && . venv/bin/activate
+make setup-venv && . venv/bin/activate
 
 # and install
 pip install .
@@ -68,47 +61,28 @@ pip install .
 
 You deactivate the virtual env with `deactivate`.
 
-
-
-## Useful Stuff
-
-### Misc
-
-Online documentation for Valhalla can be found
-[here](https://valhalla.readthedocs.io/en/latest/).
-
-
-### Installing additional packages
-
-If you want to install other packages into this environment, you can do
-something like:
+Alternatively, for development in particular, you might say
 
 ```bash
-# activate the virtual env
+make initial-setup
 . venv/bin/activate
-
-# and install
-pip install numpy pandas
+./test.sh
 ```
 
 
-### Sharing a tmux Session
 
-- Person who is going to host
+## Config
 
-  Ensure that the file */tmp/shareds* does not exist. If it does, change the
-*/tmp/shared* it what follows to some other file.
+Configuration is controlled by *cvts/settings.py*. This expects the environment
+variable *CVTS_WORK_PATH* to be set, which specifies the root folder for input/output
+data. One can optionally set specify the the following environment variables
 
-    ```bash
-    tmux -S /tmp/shareds new -s shared
-    chgrp ACL_STACC_LW-CVTS_ADM /tmp/shareds
-    ```
+- *CVTS_BOUNDARIES_PATH*: The directory in regional shape files are stored,
 
-- Person who is guest
+- *CVTS_RAW_PATH*: The directory in which the raw data is stored,
 
-    ```bash
-    tmux -S /tmp/shareds attach -t shared
+- *CVTS_CONFIG_PATH*: The directory in which the configuration data is stored
+  (see the [documentation for the config directory](doc/README-config-folder.md
+  for details), and
 
-    # or, read only
-    tmux -S /tmp/shareds attach -t shared -r
-    ```
+- *CVTS_OUT_PATH*: The directory where outputs will be saved.

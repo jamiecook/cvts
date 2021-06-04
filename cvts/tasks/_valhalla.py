@@ -131,10 +131,10 @@ def _process_files(fns):
                 EDGE_ATTR_NAMES + \
                 ('message',)) + '\n')
 
-            def write_trips(way_ids, result):
+            def write_trips(trip_desc, result):
                 resultsfile.writelines('{}\n'.format(
                     ','.join(str(t) for t in tup)) for tup in result)
-                return way_ids
+                return trip_desc
 
             trips = rawfiles2jsonchunks(input_files, True)
             results = (run_trip(trip, ti) for ti, trip in enumerate(trips))
@@ -177,9 +177,11 @@ class MatchToNetwork(luigi.Task):
     mm_file_name     = os.path.join(OUT_PATH, 'mm_files.pkl')
 
     def requires(self):
+        """:meta private:"""
         return ListRawFiles()
 
     def run(self):
+        """:meta private:"""
         # load the input file data
         with open(self.input().fn, 'rb') as input_files_file:
             input_files = pickle.load(input_files_file)
@@ -199,6 +201,7 @@ class MatchToNetwork(luigi.Task):
             pickle.dump(mm_output_files, pf)
 
     def output(self):
+        """:meta private:"""
         return {
             'seq': luigi.LocalTarget(self.pickle_file_name),
             'mm' : luigi.LocalTarget(self.mm_file_name)}

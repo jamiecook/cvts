@@ -4,6 +4,10 @@
 # Script for installing data for Vietnam and running a test 'snap'.
 #------------------------------------------------------------------------------
 
+[ ! -d venv ] && make venv
+. venv/bin/activate
+
+# for this we still want to use the source (not installed) version
 export PYTHONPATH=`pwd`
 
 # get export valhalla env variables

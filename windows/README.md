@@ -1,5 +1,8 @@
 [return to parent](../README.md)
 
+# Original Setup on Windows
+
+**NOTE: this is mainly for posterity, probably doesn't work anymore.**
 
 
 ## Contents

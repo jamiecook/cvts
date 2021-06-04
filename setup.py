@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='cvts',
@@ -7,18 +7,24 @@ setup(
     author_email='simon.knapp@csiro.au',
     version='0.0.2',
     python_requires='>=3',
-    packages=['cvts'],
+    packages=find_packages(),
     scripts=[
         'bin/csv2json',
         'bin/json2geojson',
-        'bin/processtraces',
-        'bin/regiondensity'],
+        'bin/regioncounts',
+        'bin/speed'],
     install_requires=[
-        'numpy',
+        'dataclasses',
+        'luigi',
         'nptyping',
+        'numpy',
+        'pandas',
+        'pyshp',
         'scipy',
         'shapely',
-        'tqdm',
-        'dataclasses',
-        'pyshp',
-        'luigi'])
+        'tqdm'],
+    extras_require={
+        "dev": [
+            "sphinx",
+            "sphinx-autodoc-typehints"]}
+)

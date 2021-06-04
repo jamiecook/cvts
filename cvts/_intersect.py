@@ -19,8 +19,7 @@ MULTI_CORE = not DEBUG
 def points_to_polys(
         points: NDArray,
         shapedata: str) -> NDArray:
-    """Calculate intersections between :term:`address points<address point>`
-    for year *data_year* and the geography *geog_name*.
+    """Calculate which geometry each point in *points* lie within.
 
     :param points: Two column numpy array containing the longitudes and
         latitudes of the address points.
@@ -28,8 +27,8 @@ def points_to_polys(
     :param shapedata: tuple containing geometry IDs, polygions and bounding boxes
         for a geography.
 
-    :return: The IDs of each geometry in geography *geog_name* that each
-        :term:`address point` for year *data_year* intersects."""
+    :return: The geometry ID for each point.
+    """
 
     # Compute inds, but map back to keys
     keys = np.hstack((shapedata[0], [-1]))
@@ -55,7 +54,8 @@ def _points_to_shapes(
     :param shapedata: tuple containing geometry IDs, polygions and bounding boxes
         for a geography.
 
-    :return: Geometry id of every point in *points*."""
+    :return: Geometry id of every point in *points*.
+    """
 
     keys, polys, boxes = shapedata
     rows = np.arange(len(keys))[:, None]

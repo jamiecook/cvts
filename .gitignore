@@ -3,5 +3,7 @@
 *.pyc
 snap.json
 snap.geojson
-/test
-/venv
+test/
+venv/
+cvts.egg-info/
+doc/build/

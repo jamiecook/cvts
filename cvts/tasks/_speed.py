@@ -29,16 +29,20 @@ def _process_file(filename):
     if df.shape[0] == 0:
         return
 
+    # TODO: did I check that int32 was suitable?
     df['way_id'] = df['way_id'].astype(np.int32)
 
     # add date and hour
-    dt = pd.to_datetime(df['time'],unit='s').dt
+    dt = pd.to_datetime(df['time'], unit='s').dt
     df['hour']    = dt.hour
     df['weekDay'] = dt.weekday
 
     # average speed
     def ave_speed(df):
+        # average for each trip
         tmp = df.groupby('trip_index').agg({'speed': ['mean', 'size']})
+
+        # average for the way_id/hour/weekDay
         return pd.Series({
             'speed' : np.average(tmp[('speed', 'mean')], weights=tmp[('speed', 'size')]),
             'weight': np.sum(tmp[('speed', 'size')])})
@@ -70,9 +74,11 @@ class AverageSpeed(luigi.Task):
     pickle_file_name = os.path.join(OUT_PATH, AVE_SPEED_FILE)
 
     def requires(self):
+        """:meta private:"""
         return MatchToNetwork()
 
     def run(self):
+        """:meta private:"""
         with open(self.input()['mm'].fn, 'rb') as mm_files_file:
             mm_files = pickle.load(mm_files_file)
 
@@ -86,4 +92,5 @@ class AverageSpeed(luigi.Task):
                 pickle.dump(output_files, pf)
 
     def output(self):
+        """:meta private:"""
         return luigi.LocalTarget(self.pickle_file_name)
