@@ -7,6 +7,6 @@ from cvts.tasks import RegionCounts, RasterCounts, SourceDestinationCounts
 logging.basicConfig(level=logging.INFO)
 
 luigi.build([
-    RegionCounts(),
     RasterCounts(),
+    RegionCounts('District'),
     SourceDestinationCounts('trans_cities')], local_scheduler=True)

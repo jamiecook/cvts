@@ -23,7 +23,6 @@ from ._valhalla import MatchToNetwork
 
 
 
-DEFAULT_BOUNDARIES = 'District'
 GEOM_ID_COLUMN     = {'District': 'DistrictID', 'trans_cities': 'OBJECTID'}
 MAGIC_DISTANCE     = 50 # m
 TZ                 = timezone(timedelta(hours=7), 'ITC')
@@ -231,7 +230,7 @@ class _PointsToRegions(luigi.Task):
 
 
 class _CountsTask(luigi.Task):
-    geometries_name  = luigi.Parameter(default=DEFAULT_BOUNDARIES)
+    geometries_name  = luigi.Parameter()
 
     @property
     def pickle_file_name(self):
