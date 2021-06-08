@@ -210,16 +210,16 @@ for a geography.</p></li>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><p>A geenerator over a dicts that contain information about each GPS
 point. Each dict looks like:</p>
-<dl class="simple">
-<dt>return [{</dt><dd><p>‘lat’: float(row[‘Longitude’]),
-‘lon’: float(row[‘Latitude’]),
-‘time’: float(row[‘Time’]),
-‘heading’: float(row[‘Orientation’]),
-‘speed’: float(row[‘speed’]),
-‘heading_tolerance’: 45,
-‘type’: ‘via’} for row in reader]</p>
-</dd>
-</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[{</span>
+    <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Longitude&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Latitude&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;heading&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Orientation&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;speed&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;speed&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;heading_tolerance&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;via&#39;</span><span class="p">}</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">]</span>
+</pre></div>
+</div>
 </p>
 </dd>
 </dl>
