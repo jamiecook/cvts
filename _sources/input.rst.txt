@@ -10,7 +10,7 @@ GPS data
 ========
 
 The system expects to find raw data in the directory specified by
-:py:data"`cvts.settings.RAW_PATH`. The name of each file is *<vehicle-id>.csv*,
+:py:data:`cvts.settings.RAW_PATH`. The name of each file is *<vehicle-id>.csv*,
 and the vehicle id is inferred from the file name. So far, we have on file
 per vehicle per day, and the data for each day is contained in a subdirectory.
 All files for a vehicle are concatenated and the GPS points sorted by the time
