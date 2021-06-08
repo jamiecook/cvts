@@ -41,3 +41,10 @@ different on how they are used more generally.
         A set of :term:`geometries<geometry>` that specify regionalisations of
         interest. see :ref:`here<geographies-data>` for a description of what is
         required in this package.
+
+    stop point
+        A location where a vehicle has not moved for more than
+        :py:data:`cvts.settings.MIN_STOP_TIME` seconds.s
+
+    trip
+        A journey between two :term:`stop points<stop point>`.
