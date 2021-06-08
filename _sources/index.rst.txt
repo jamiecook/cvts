@@ -34,8 +34,8 @@ different on how they are used more generally.
 .. glossary::
 
     geometry
-        A spatial object (at present, a Polygon or MultiPolygon) on which some
-        set of observations are made.
+        A spatial object (at present, a Polygon or MultiPolygon) that designates
+        some area of interest.
 
     geography
         A set of :term:`geometries<geometry>` that specify regionalisations of
@@ -44,7 +44,7 @@ different on how they are used more generally.
 
     stop point
         A location where a vehicle has not moved for more than
-        :py:data:`cvts.settings.MIN_STOP_TIME` seconds.s
+        :py:data:`cvts.settings.MIN_STOP_TIME` seconds.
 
     trip
         A journey between two :term:`stop points<stop point>`.
