@@ -4,6 +4,8 @@ Inputs
 
 
 
+.. _gps-data:
+
 GPS data
 ========
 

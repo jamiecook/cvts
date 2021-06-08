@@ -194,13 +194,40 @@ for a geography.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cvts.rawfiles2jsonchunks">
-<span class="sig-prename descclassname"><span class="pre">cvts.</span></span><span class="sig-name descname"><span class="pre">rawfiles2jsonchunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csvfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_trips</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cvts.rawfiles2jsonchunks" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cvts.</span></span><span class="sig-name descname"><span class="pre">rawfiles2jsonchunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_trips</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cvts.rawfiles2jsonchunks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a generator over all the data for a single vehicle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Sequence</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>] </strong><strong>csv_file</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>,</em>) – Either the name of a
+<a href="#id1"><span class="problematic" id="id2">`input&lt;gps-data&gt;`_</span></a> file or a sequence of file names of such files.</p></li>
+<li><p><strong>split_trips</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>A geenerator over a dicts that contain information about each GPS
+point. Each dict looks like:</p>
+<dl class="simple">
+<dt>return [{</dt><dd><p>‘lat’: float(row[‘Longitude’]),
+‘lon’: float(row[‘Latitude’]),
+‘time’: float(row[‘Time’]),
+‘heading’: float(row[‘Orientation’]),
+‘speed’: float(row[‘speed’]),
+‘heading_tolerance’: 45,
+‘type’: ‘via’} for row in reader]</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cvts.rawfiles2jsonfile">
-<span class="sig-prename descclassname"><span class="pre">cvts.</span></span><span class="sig-name descname"><span class="pre">rawfiles2jsonfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csvfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cvts.rawfiles2jsonfile" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cvts.</span></span><span class="sig-name descname"><span class="pre">rawfiles2jsonfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cvts.rawfiles2jsonfile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
