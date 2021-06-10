@@ -43,7 +43,137 @@ See [windows/README](./windows/README.md) for instructions for getting started
 on windows. On Linux (Ubuntu)... just follow the instructions in [the README in
 the Valhalla repo](https://github.com/CVTS/valhalla).
 
-To setup this repo, you can install the python package with (using virtualenv):
+
+### Setup on Centos (from first setup of WB machine):
+
+```bash
+sudo yum group install -y "Development Tools"
+sudo yum install -y \
+    cmake3 \
+    curl-devel \
+    czmq-devel \
+    minizip-devel \
+    proj-devel \
+    zeromq-devel \
+    libxml2-devel \
+    luajit-devel
+
+    # boost-devel
+    # protobuf-devel
+    # sqlite-devel
+    # geos-devel
+
+# default curl does not work
+# from https://serverfault.com/questions/321321/upgrade-curl-to-latest-on-centos
+sudo echo "[CityFan]
+name=City Fan Repo
+baseurl=http://www.city-fan.org/ftp/contrib/yum-repo/rhel$releasever/$basearch/
+enabled=1
+gpgcheck=0" > /etc/yum.repos.d/city-fan.repo
+sudo yum clean all
+sudo install curl
+
+# default gcc on Centos is too old (for Valahalla)
+# from https://stackoverflow.com/questions/55345373/how-to-install-gcc-g-8-on-centos
+sudo yum install centos-release-scl
+sudo yum install devtoolset-8-gcc devtoolset-8-gcc-c++
+scl enable devtoolset-8 -- bash
+
+# install boost (packaged version has missing files... too old?)
+cd ~
+wget https://boostorg.jfrog.io/artifactory/main/release/1.66.0/source/boost_1_66_0.tar.gz
+tar -xzf boost_1_66_0.tar.gz
+cd boost_1_66_0
+./bootstrap.sh
+sudo ./b2 --with-program_options install
+
+# install protobuf (packaged version too old)
+cd ~
+git clone --recurse-submodules https://github.com/protocolbuffers/protobuf.git
+cd protobuf
+./autogen.sh
+./configure
+make -j8 && sudo make install
+
+# build and install sqlite (appears the latest on centos is too old)
+cd ~
+git clone https://github.com/sqlite/sqlite.git
+cd sqlite
+./configure --enable-rtree
+make -j8 && sudo make install
+
+# build and install geos
+cd ~
+git clone https://github.com/libgeos/geos.git
+# remove the -Werror from CMakelists.txt (about line 243)
+mkdir build
+cd build
+cmake3 -DCMAKE_BUILD_TYPE=Release ..
+make && sudo make install
+
+# build and install freexl # ???
+cd ~
+wget http://www.gaia-gis.it/gaia-sins/freexl-1.0.6.tar.gz
+tar -xzf freexl-1.0.6.tar.gz
+cd freexl-1.0.6
+./configure
+make && sudo make install
+
+# build and install librttopo
+cd ~
+git clone https://git.osgeo.org/gitea/rttopo/librttopo.git
+cd librttopo
+./autogen.sh
+./configure
+make && sudo make install
+
+# build and install readosm
+cd ~
+wget http://www.gaia-gis.it/gaia-sins/readosm-1.1.0a.tar.gz
+tar -zxf readosm-1.1.0a.tar.gz
+cd readosm-1.1.0a
+./configure
+make -j 8
+sudo make install
+
+# build and install spatiallite (packaged version too old)
+cd ~
+wget http://www.gaia-gis.it/gaia-sins/libspatialite-5.0.1.tar.gz
+tar -xzf libspatialite-5.0.1.tar.gz
+cd libspatialite-5.0.1
+./configure --disable-knn
+make && sudo make install
+
+## build and install spatiallite-tools
+## not sure if this is required in the end (disabling tests and benchmarks)
+#cd ~
+#wget http://www.gaia-gis.it/gaia-sins/spatialite-tools-5.0.0.tar.gz
+#tar -xzf spatialite-tools-5.0.0.tar.gz
+#cd spatialite-tools-5.0.0
+#PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure
+#make -j 8
+#sudo make install
+
+# don't think needed if we have -DENABLE_SERVICES=OFF in Valahalla
+## install prime server
+#cd ~
+#git clone --recursive https://github.com/kevinkreiser/prime_server.git
+#cd prime_server
+#mkdir build && cd build
+#cmake3 .. -DCMAKE_BUILD_TYPE=Release
+#make -j8 && sudo make install
+
+# ... and finally, valhalla itself
+cd ~
+git clone --recursive https://github.com/CVTS/valhalla.git
+cd valhalla
+mkdir build && cd build
+cmake3 -DCMAKE_BUILD_TYPE=Release -DENABLE_SERVICES=OFF -DENABLE_TESTS=OFF -DENABLE_BENCHMARKS=OFF ..
+make -j8 && sudo make install
+```
+
+
+### In General
 
 ```bash
 # Clone this repository
@@ -57,9 +187,11 @@ pip install .
 
 # get the Vietnam data and check that it is all working
 ./test.sh
+
+# You deactivate the virtual env with
+deactivate
 ```
 
-You deactivate the virtual env with `deactivate`.
 
 Alternatively, for development in particular, you might say
 
@@ -67,6 +199,7 @@ Alternatively, for development in particular, you might say
 make initial-setup
 . venv/bin/activate
 ./test.sh
+deactivate
 ```
 
 
