@@ -138,7 +138,7 @@ def _process_files(fns):
 
             trips = rawfiles2jsonchunks(input_files, True)
             results = (run_trip(trip, ti) for ti, trip in enumerate(trips))
-            json.dump([write_trips(*r) for r in results], seqfile)
+            json.dump([write_trips(*r) for r in results if r[0]['status'] == 'success'], seqfile)
 
     except Exception as e:
         logger.exception('processing {} failed...'.format(rego))
