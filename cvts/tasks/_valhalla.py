@@ -65,15 +65,17 @@ def _run_valhalla(fn, trip, trip_index):
 
 
 
-def _process_files(fns):
+def _process_files(fns, pnt_file=None, seq_file=None):
     fn          = fns[0]
     input_files = fns[1]
     rego        = os.path.splitext(fn)[0]
 
     assert(fn.endswith('.csv'))
 
-    pnt_file = os.path.join(MM_PATH, fn)
-    seq_file = os.path.join(SEQ_PATH, '{}.json'.format(rego))
+    if pnt_file is None:
+        pnt_file = os.path.join(MM_PATH, fn)
+    if seq_file is None:
+        seq_file = os.path.join(SEQ_PATH, '{}.json'.format(rego))
 
     if os.path.exists(pnt_file) and os.path.exists(seq_file):
         logger.info('skipping: {} (done)'.format(rego))
@@ -205,3 +207,41 @@ class MatchToNetwork(luigi.Task):
         return {
             'seq': luigi.LocalTarget(self.pickle_file_name),
             'mm' : luigi.LocalTarget(self.mm_file_name)}
+
+
+
+class MatchOneToNetwork(luigi.Task):
+    """Match trips to the network."""
+
+    rego = luigi.Parameter()
+
+    @property
+    def input_file_name(self):
+        return '{}.csv'.format(self.rego)
+
+    def requires(self):
+        """:meta private:"""
+        return ListRawFiles()
+
+    def run(self):
+        """:meta private:"""
+
+        # load the input file data
+        with open(self.input().fn, 'rb') as input_files_file:
+            input_files = pickle.load(input_files_file)
+            v = input_files[self.input_file_name]
+
+        _process_files(
+            (self.input_file_name, v),
+            self.output()['mm'].fn,
+            self.output()['seq'].fn)
+
+    def output(self):
+        """:meta private:"""
+        base_path = os.path.expanduser('~')
+
+        return {
+            'seq': luigi.LocalTarget(
+                os.path.join(base_path, '{}.json'.format(self.rego))),
+            'mm' : luigi.LocalTarget(
+                os.path.join(base_path, self.input_file_name))}
